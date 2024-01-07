@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AppBar, Toolbar, Button, Typography, Box, Stack, IconButton, Drawer, List, ListItem, ListItemText } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { UserContext } from '../context/UsersContext.jsx';
 
 function Navigation() {
@@ -40,9 +40,11 @@ function Navigation() {
             onKeyDown={toggleDrawer(false)}
         >
             <List>
-                {['Home', 'MY Account', 'Transactions'].map((text, index) => (
-                    <ListItem button key={text} component={Link} to={index === 0 ? '/' : index === 1 ? '/user-details' : '/transactions'}>
-                        <ListItemText primary={text} />
+                {['/', '/user-details', '/transactions'].map((path, index) => (
+                    <ListItem button key={path}>
+                        <NavLink to={path} style={{ textDecoration: 'none', color: 'inherit', width: '100%' }}>
+                            <ListItemText primary={index === 0 ? 'Home' : index === 1 ? 'MY Account' : 'Transactions'} />
+                        </NavLink>
                     </ListItem>
                 ))}
             </List>
@@ -74,9 +76,16 @@ function Navigation() {
                 </Typography>
                 <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>
                     <Stack direction="row" spacing={2}>
-                        <Button color="inherit" component={Link} to="/">Home</Button>
-                        <Button color="inherit" component={Link} to="/user-details">MY Account</Button>
-                        <Button color="inherit" component={Link} to="/transactions">Transactions</Button>
+                        {['/', '/user-details', '/transactions'].map((path, index) => (
+                            <Button 
+                                key={path} 
+                                component={NavLink} 
+                                to={path} 
+                                style={({ isActive }) => isActive ? { border: '1px solid white', color: 'inherit' } : { color: 'inherit' }}
+                            >
+                                {index === 0 ? 'Home' : index === 1 ? 'MY Account' : 'Transactions'}
+                            </Button>
+                        ))}
                     </Stack>
                 </Box>
                 <Box sx={{ flexGrow: 0, display: 'flex', alignItems: 'center', marginLeft: 2 }}>
@@ -90,7 +99,7 @@ function Navigation() {
                             </Button>
                         </>
                     ) : (
-                        <Button color="inherit" component={Link} to="/login">Login</Button>
+                        <Button color="inherit" component={NavLink} to="/login">Login</Button>
                     )}
                 </Box>
             </Toolbar>
