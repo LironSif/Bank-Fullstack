@@ -33,7 +33,7 @@ const handleLogout = () => {
                 </Typography>
                 <Stack direction="row" spacing={2}>
                     <Button color="inherit" component={Link} to="/">Home</Button>
-                    <Button color="inherit" component={Link} to="/user-details">New Transactions</Button>
+                    <Button color="inherit" component={Link} to="/user-details">MY Account</Button>
                     <Button color="inherit" component={Link} to="/transactions">Transactions</Button>
                 </Stack>
                 <Box sx={{ flexGrow: 0, display: 'flex', alignItems: 'center', marginLeft: 2 }}>
