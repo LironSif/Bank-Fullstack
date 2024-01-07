@@ -1,5 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Card, CardContent, Typography, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Stack, Select, MenuItem, FormControl, InputLabel, CircularProgress } from '@mui/material';
+import {
+  Box, Card, CardContent, Typography, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Stack, Select, MenuItem, FormControl, InputLabel, CircularProgress, CardHeader
+} from '@mui/material';
+import InfoIcon from '@mui/icons-material/Info';
 import { Link } from 'react-router-dom';
 import { UserContext, AccountContext } from '../context/UsersContext.jsx';
 
@@ -21,18 +24,27 @@ function UserTransactionPage() {
   const [transferTo, setTransferTo] = useState('');
   const [initialDeposit, setInitialDeposit] = useState('');
 
-
   const fetchUserDetails = async () => {
     setLoading(true);
-    if (loggedInUserId) {
-      const fetchedUser = await getUserById(loggedInUserId);
-      setUser(fetchedUser);
-      const fetchedAccounts = await fetchAccountsByUserId(loggedInUserId);
-      setUserAccounts(fetchedAccounts);
+    try {
+      if (loggedInUserId) {
+        const fetchedUser = await getUserById(loggedInUserId);
+        setUser(fetchedUser);
+        try {
+          const fetchedAccounts = await fetchAccountsByUserId(loggedInUserId);
+          setUserAccounts(fetchedAccounts);
+        } catch (accountError) {
+          console.error("Error fetching accounts:", accountError);
+          setUserAccounts([]);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
-  
+
   useEffect(() => {
     fetchUserDetails();
   }, [loggedInUserId, getUserById, fetchAccountsByUserId]);
@@ -65,6 +77,9 @@ function UserTransactionPage() {
 
   return (
     <Box sx={{ p: 3 }}>
+      <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 3 }}>
+        Account Dashboard
+      </Typography>
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
           <CircularProgress />
@@ -74,13 +89,13 @@ function UserTransactionPage() {
         <>
           {loggedInUserId ? (
             userAccounts.length ? (
-              <Card>
+              <Card sx={{ my: 4, p: 2 }}>
                 <CardContent>
-                  <Typography variant="h6" gutterBottom>
+                  <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
                     Welcome, {user ? user.name : "User"}!
                   </Typography>
                   {userAccounts.map(account => (
-                    <Box key={account._id} sx={{ mt: 2 }}>
+                    <Box key={account._id} sx={{ mt: 2, mb: 1 }}>
                       <Typography variant="subtitle1">
                         {account.accountType.charAt(0).toUpperCase() + account.accountType.slice(1)} Account
                       </Typography>
@@ -90,10 +105,10 @@ function UserTransactionPage() {
                     </Box>
                   ))}
                   <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-                    <Button onClick={() => setOpenDepositModal(true)} color="success">Deposit</Button>
-                    <Button onClick={() => setOpenWithdrawModal(true)} color="primary">Withdraw</Button>
-                    <Button onClick={() => setOpenTransferModal(true)} color="secondary">Transfer</Button>
-                    <Button onClick={() => setOpenDeleteModal(true)} color="error">Delete Account</Button>
+                    <Button onClick={() => setOpenDepositModal(true)} color="success" sx={{ backgroundColor: "primary.dark", color: "white" }}>Deposit</Button>
+                    <Button onClick={() => setOpenWithdrawModal(true)} color="primary" sx={{ backgroundColor: "primary.dark", color: "white" }}>Withdraw</Button>
+                    <Button onClick={() => setOpenTransferModal(true)} color="secondary" sx={{ backgroundColor: "primary.dark", color: "white" }}>Transfer</Button>
+                    <Button onClick={() => setOpenDeleteModal(true)} color="error" sx={{ backgroundColor: "red", color: "white" }}>Delete Account</Button>
                   </Stack>
                 </CardContent>
               </Card>
@@ -113,6 +128,25 @@ function UserTransactionPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* New Card for Banking Features and Options */}
+          <Card sx={{ my: 4, p: 2 }}>
+            <CardHeader avatar={<InfoIcon color="primary" />} title="Banking Features and Options" />
+            <CardContent>
+              <Typography variant="body1" gutterBottom>
+                1. Deposits and Withdrawals are available only for Checking Accounts.
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                2. Transfers are possible between Checking and Savings Accounts only.
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                3. For transferring funds to other users, please go to the Transactions page.
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                4. Deleting an account will remove both Checking and Savings accounts.
+              </Typography>
+            </CardContent>
+          </Card>
 
           {/* Deposit Modal */}
           <Dialog open={openDepositModal} onClose={handleCloseModals}>
@@ -169,8 +203,9 @@ function UserTransactionPage() {
                   label="From Account"
                   onChange={(e) => setTransferFrom(e.target.value)}
                 >
-                  <MenuItem value="checking">Checking</MenuItem>
-                  <MenuItem value="savings">Savings</MenuItem>
+                  {userAccounts.map(account => (
+                    <MenuItem key={account._id} value={account._id}>{account.accountType}</MenuItem>
+                  ))}
                 </Select>
               </FormControl>
               <FormControl fullWidth>
@@ -182,8 +217,9 @@ function UserTransactionPage() {
                   label="To Account"
                   onChange={(e) => setTransferTo(e.target.value)}
                 >
-                  <MenuItem value="checking">Checking</MenuItem>
-                  <MenuItem value="savings">Savings</MenuItem>
+                  {userAccounts.map(account => (
+                    <MenuItem key={account._id} value={account._id}>{account.accountType}</MenuItem>
+                  ))}
                 </Select>
               </FormControl>
               <TextField
