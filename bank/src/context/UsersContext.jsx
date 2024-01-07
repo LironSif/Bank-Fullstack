@@ -71,8 +71,8 @@ export const AccountProvider = ({ children }) => {
         return response.data;
     };
 
-    const createAccount = async (userId, accountData) => {
-        const response = await axios.post(`${apiBaseUrl}/accounts/${userId}`, accountData);
+    const createAccount = async (userId, amount) => {
+        const response = await axios.post(`${apiBaseUrl}/accounts/${userId}`, amount);
         return response.data;
     };
 
