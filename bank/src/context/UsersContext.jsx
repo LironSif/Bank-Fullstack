@@ -92,12 +92,6 @@ export const AccountProvider = ({ children }) => {
     };
 
     const userTransfer = async (userId, fromAccountId, toAccountId, amount) => {
-        console.log(userId)
-        console.log("from",fromAccountId)
-        console.log("to",toAccountId)
-        console.log("amount",amount)
-        // console.log(`${fromAccountId} balance is ${account.cash}`)
-
         const response = await axios.post(`${apiBaseUrl}/accounts/${userId}/transfer`, { fromAccountId, toAccountId, amount });
         return response.data;
     };
