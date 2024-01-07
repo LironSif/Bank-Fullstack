@@ -12,17 +12,17 @@ function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage(''); // Reset error message on new submission
+    setErrorMessage(''); 
     try {
       const user = await getUserByEmail(email);
-      if (user) { // Replace with actual password verification logic
+      if (user) { 
         loginUser(user._id);
         navigate('/');
       } else {
         setErrorMessage('Incorrect email or password.');
       }
     } catch (error) {
-      // Handle case where email is not found or other errors
+      
       setErrorMessage('Error occurred while logging in.');
     }
   };

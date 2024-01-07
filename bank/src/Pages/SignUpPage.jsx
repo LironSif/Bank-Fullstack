@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom'; 
 import { Container, TextField, Button, Typography, Box } from '@mui/material';
-import { UserContext } from '../context/UsersContext.jsx'; // Adjust the path as needed
+import { UserContext } from '../context/UsersContext.jsx'; 
 
 function SignUpPage() {
   const [name, setName] = useState('');
@@ -9,7 +9,7 @@ function SignUpPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const { registerUser } = useContext(UserContext);
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate(); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,7 +19,7 @@ function SignUpPage() {
     }
     try {
       await registerUser({ name, email, password });
-      navigate('/login'); // Redirect to login page after successful registration
+      navigate('/login'); 
     } catch (error) {
       console.log("registration error")
     }
