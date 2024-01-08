@@ -1,5 +1,6 @@
 import React, { createContext, useState } from 'react';
 import axios from 'axios';
+import { redirect } from 'react-router-dom';
 
 export const UserContext = createContext();
 
@@ -8,11 +9,27 @@ export const UserProvider = ({ children }) => {
     const [loggedInUserId, setLoggedInUserId] = useState(initialUserId);
     const apiBaseUrl = 'https://bankapi-tbq9.onrender.com/api/v1';
     const axiosInstance = axios.create({ baseURL: apiBaseUrl });
+    
 
     const registerUser = async (userData) => {
-        const response = await axios.post(`${apiBaseUrl}/users`, userData);
-        setLoggedInUserId(response.data._id);
+    
+        try {
+            const response = await axios.post(`${apiBaseUrl}/users`, userData);
+            setLoggedInUserId(response.data._id);
+            
+        } catch (error) {
+            if (error.response) {
+              
+                console.error("Registration error:", error.response.data);
+                throw new Error(error.response.data); 
+            } else {
+           
+                console.error("Error:", error.message);
+                throw error;
+            }
+        }
     };
+    
 
     const getUserByEmail = async (email) => {
         const response = await axiosInstance.get(`/users/email/${email}`);
@@ -72,9 +89,22 @@ export const AccountProvider = ({ children }) => {
     };
 
     const createAccount = async (userId, amount) => {
-        const response = await axios.post(`${apiBaseUrl}/accounts/${userId}`, amount);
-        return response.data;
+
+        try {
+            const response = await axios.post(`${apiBaseUrl}/accounts/${userId}`, { cash: amount });
+            return response.data;
+        } catch (error) {
+            // Check if the error response exists and log the message
+            if (error.response) {
+                console.error('Error:', error.response.data);
+                throw new Error(error.response.data);
+            } else {
+                console.error('Error:', error.message);
+                throw error;
+            }
+        }
     };
+    
 
     const deleteAccount = async (accountId) => {
         const response = await axios.delete(`${apiBaseUrl}/accounts/${accountId}`);

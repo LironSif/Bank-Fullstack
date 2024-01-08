@@ -21,7 +21,7 @@ function SignUpPage() {
       await registerUser({ name, email, password });
       navigate('/login'); 
     } catch (error) {
-      console.log("registration error")
+
     }
   };
 
