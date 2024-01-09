@@ -14,18 +14,20 @@ function LoginPage() {
     e.preventDefault();
     setErrorMessage(''); 
     try {
-      const user = await getUserByEmail(email);
-      if (user) { 
-        loginTheUser(user._id, user.email, password);
+      const loginSuccess = await loginTheUser(email, password);
+      console.log("first")
+      if (loginSuccess) {
+        console.log(loginSuccess)
         navigate('/');
       } else {
+        console.log("else")
         setErrorMessage('Incorrect email or password.');
       }
     } catch (error) {
-      
-      setErrorMessage('Error occurred while logging in.');
+      setErrorMessage(error.message || 'Error occurred while logging in.');
     }
   };
+  
 
   return (
     <Container component="main" maxWidth="xs">

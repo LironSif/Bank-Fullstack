@@ -7,45 +7,53 @@ export const UserContext = createContext();
 export const UserProvider = ({ children }) => {
     const initialUserId = localStorage.getItem('loggedInUserId');
     const [loggedInUserId, setLoggedInUserId] = useState(initialUserId);
-    // const apiBaseUrl = 'http://localhost:3000/api/v1';
-    const apiBaseUrl = 'https://bankapi-tbq9.onrender.com/api/v1';
+    const apiBaseUrl = 'http://localhost:3000/api/v1';
+    // const apiBaseUrl = 'https://bankapi-tbq9.onrender.com/api/v1';
     const axiosInstance = axios.create({ baseURL: apiBaseUrl });
     
     const registerUser = async (userData) => {
         try {
-            const response = await axios.post(`${apiBaseUrl}/users/s`, userData);
-            console.log(response.data);
-            if (response.data.token) {
-                await authTheUser(response.data.token);
-                setLoggedInUserId(response.data._id);
-                console.log("Registration and authentication completed successfully");
+            const registrationResponse = await axios.post(`${apiBaseUrl}/users/`, userData);
+            console.log("User registered successfully");
+    
+            // Now log in the user automatically after registration
+            const loginResponse = await axios.post(`${apiBaseUrl}/users/login`, {
+                email: userData.email,
+                password: userData.password
+            });
+    
+            if (loginResponse.data.token) {
+                localStorage.setItem('token', loginResponse.data.token);
+                setLoggedInUserId(loginResponse.data._id);
+                localStorage.setItem('loggedInUserId', loginResponse.data._id);
+                console.log("User logged in and data stored in local storage");
             }
         } catch (error) {
-            if (error.response) {
-                console.error("Registration error:", error.response.data);
-                throw new Error(error.response.data); 
-            } else {
-                console.error("Error:", error.message);
-                throw error;
-            }
+            console.error("Error during registration or login:", error.message);
+            // Handle errors appropriately
         }
     };
     
-    const loginTheUser = async (userId ,email, password) => {
+    
+    const loginTheUser = async (email, password) => {
         try {
             const response = await axios.post(`${apiBaseUrl}/users/login`, { email, password });
-            console.log(response.data);
             if (response.data.token) {
+                localStorage.setItem('token', response.data.token);
+                localStorage.setItem('loggedInUserId', response.data._id);
+                setLoggedInUserId(response.data._id);
                 await authTheUser(response.data.token);
-                console.log("Login successful for email:", email);
-                console.log(userId);
-                setLoggedInUserId(userId);
-                localStorage.setItem('loggedInUserId', userId); 
+                return true; // Indicate successful login
+            } else {
+                return false; // Indicate failed login
             }
         } catch (error) {
             console.error("Login problem:", error.response ? error.response.data : error.message);
+            return false; // Indicate failed login
         }
     };
+    
+    
     
     const authTheUser = async (token) => {
         try {
