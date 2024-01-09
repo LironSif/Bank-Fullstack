@@ -7,8 +7,8 @@ export const UserContext = createContext();
 export const UserProvider = ({ children }) => {
     const initialUserId = localStorage.getItem('loggedInUserId');
     const [loggedInUserId, setLoggedInUserId] = useState(initialUserId);
-    const apiBaseUrl = 'http://localhost:3000/api/v1';
-    // const apiBaseUrl = 'https://bankapi-tbq9.onrender.com/api/v1';
+    // const apiBaseUrl = 'http://localhost:3000/api/v1';
+    const apiBaseUrl = 'https://bankapi-tbq9.onrender.com/api/v1';
     const axiosInstance = axios.create({ baseURL: apiBaseUrl });
     
     const registerUser = async (userData) => {
