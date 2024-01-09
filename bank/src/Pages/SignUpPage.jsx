@@ -19,7 +19,7 @@ function SignUpPage() {
     }
     try {
       await registerUser({ name, email, password });
-      navigate('/login'); 
+      navigate('/'); 
     } catch (error) {
 
     }

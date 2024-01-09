@@ -7,7 +7,7 @@ function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const { loginUser, getUserByEmail } = useContext(UserContext);
+  const { loginTheUser, getUserByEmail } = useContext(UserContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -16,7 +16,7 @@ function LoginPage() {
     try {
       const user = await getUserByEmail(email);
       if (user) { 
-        loginUser(user._id);
+        loginTheUser(user._id, user.email, password);
         navigate('/');
       } else {
         setErrorMessage('Incorrect email or password.');

@@ -7,39 +7,78 @@ export const UserContext = createContext();
 export const UserProvider = ({ children }) => {
     const initialUserId = localStorage.getItem('loggedInUserId');
     const [loggedInUserId, setLoggedInUserId] = useState(initialUserId);
-    const apiBaseUrl = 'https://bankapi-tbq9.onrender.com/api/v1';
+    const apiBaseUrl = 'http://localhost:3000/api/v1';
+    // const apiBaseUrl = 'https://bankapi-tbq9.onrender.com/api/v1';
     const axiosInstance = axios.create({ baseURL: apiBaseUrl });
     
-
     const registerUser = async (userData) => {
-    
         try {
-            const response = await axios.post(`${apiBaseUrl}/users`, userData);
-            setLoggedInUserId(response.data._id);
-            
+            const response = await axios.post(`${apiBaseUrl}/users/s`, userData);
+            console.log(response.data);
+            if (response.data.token) {
+                await authTheUser(response.data.token);
+                setLoggedInUserId(response.data._id);
+                console.log("Registration and authentication completed successfully");
+            }
         } catch (error) {
             if (error.response) {
-              
                 console.error("Registration error:", error.response.data);
                 throw new Error(error.response.data); 
             } else {
-           
                 console.error("Error:", error.message);
                 throw error;
             }
         }
     };
     
+    const loginTheUser = async (userId ,email, password) => {
+        try {
+            const response = await axios.post(`${apiBaseUrl}/users/login`, { email, password });
+            console.log(response.data);
+            if (response.data.token) {
+                await authTheUser(response.data.token);
+                console.log("Login successful for email:", email);
+                console.log(userId);
+                setLoggedInUserId(userId);
+                localStorage.setItem('loggedInUserId', userId); 
+            }
+        } catch (error) {
+            console.error("Login problem:", error.response ? error.response.data : error.message);
+        }
+    };
+    
+    const authTheUser = async (token) => {
+        try {
+            const response = await axios.get(`${apiBaseUrl}/users/s/me`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            console.log("Authenticated user data:", response.data);
+            // Additional logic if needed
+        } catch (error) {
+            console.error("Authentication problem:", error.response ? error.response.data : error.message);
+        }
+    };
+
+
+
+
+
+
+
+
+
 
     const getUserByEmail = async (email) => {
         const response = await axiosInstance.get(`/users/email/${email}`);
         return response.data;
     };
 
-    const loginUser = async (userId) => {
-        setLoggedInUserId(userId);
-        localStorage.setItem('loggedInUserId', userId); // Store user ID in local storage
-    };
+    // const loginUser = async (userId) => {
+    //     setLoggedInUserId(userId);
+    //     localStorage.setItem('loggedInUserId', userId); // Store user ID in local storage
+    // };
 
     const logoutUser = () => {
         setLoggedInUserId(null);
@@ -62,7 +101,7 @@ export const UserProvider = ({ children }) => {
     };
 
     return (
-        <UserContext.Provider value={{ logoutUser ,getUserByEmail, loginUser, loggedInUserId, fetchAllUsers, createUser, getUserById, registerUser }}>
+        <UserContext.Provider value={{ loginTheUser ,logoutUser ,getUserByEmail, loggedInUserId, fetchAllUsers, createUser, getUserById, registerUser }}>
             {children}
         </UserContext.Provider>
     );
